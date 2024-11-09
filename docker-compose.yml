@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # ルートユーザーのパスワード
+      MYSQL_DATABASE: my_database        # デフォルトのデータベース名
+      MYSQL_USER: user                   # ユーザー名
+      MYSQL_PASSWORD: password           # ユーザーパスワード
+    ports:
+      - "3306:3306"                      # ホストの3306番ポートをコンテナの3306番ポートにマッピング
+    volumes:
+      - mysql_data:/var/lib/mysql        # データ永続化のためのボリューム
+      - ./db_init:/docker-entrypoint-initdb.d  # 初期化スクリプトのマウント
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_container
+    environment:
+      PMA_HOST: mysql                   # MySQLサービスの名前
+      PMA_PORT: 3306                    # MySQLのポート番号
+      PMA_USER: user                    # phpMyAdminで使用するユーザー名
+      PMA_PASSWORD: password            # phpMyAdminで使用するユーザーパスワード
+    ports:
+      - "8080:80"                        # ホストの8080番ポートをコンテナの80番ポートにマッピング
+    depends_on:
+      - mysql                            # phpMyAdminがMySQLサービスに依存することを指定
+
+volumes:
+  mysql_data:
